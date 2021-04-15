@@ -60,33 +60,36 @@ def iniciaparpuro(par):
     return par
 
 def Xassocpuro(rho,T,par):
-    eta = par["b"] * rho / 4.;
-    if par["g"] == "CPA":
-        gref = (1. - eta/2.) / (1. - eta)**3.;
-    elif par["g"] == "sCPA":
-        gref = 1. / (1. - 1.9*eta);
-    # Delta = gref * (np.exp(par["epsAB_R"]/T)-1.) * par["b_betaAB"];
-    Delta = gref * (np.exp(par["epsAB_R"]/T - np.log(par["b_betaAB"])) - par["b_betaAB"]);
-    rhoDelta = rho * Delta;
-    if rhoDelta < 1.e300:
-        if par["esquema"] == '1A':
-            XA = (-1.+np.sqrt(1+4*rhoDelta))/(2*rhoDelta); X = np.array([XA]);
-        elif par["esquema"] == '2B':
-            XA = (-1.+np.sqrt(1+4*rhoDelta))/(2*rhoDelta); X = np.array([XA, XA]); #XB = XA
-        elif par["esquema"] == '3B':
-            XA = (-1.+rhoDelta+np.sqrt((1+rhoDelta)**2+4*rhoDelta))/(4*rhoDelta); X = np.array([XA, 2.*XA-1.]); #XB = XA (1 tipo, ocorrência 2), XC = 2*XA - 1
-        elif par["esquema"] == '4C':
-            XA = (-1.+np.sqrt(1+8*rhoDelta))/(4*rhoDelta); X = np.array([XA, XA]); #XB = XA (1 tipo, ocorrência 2), XC = XD (outro sítio, ocorrência 2) = XA
+    if par["esquema"] == 'nenhum':
+        XA = 1.
     else:
-        raizrhoDelta = np.sqrt(rho * par["b_betaAB"] * gref) * np.exp(par["epsAB_R"]/(2.*T));
-        if par["esquema"] == '1A':
-            XA = 1./raizrhoDelta; X = np.array([XA]);
-        elif par["esquema"] == '2B':
-            XA =1./raizrhoDelta; X = np.array([XA, XA]); #XB = XA
-        elif par["esquema"] == '3B':
-            XC = 3./2./raizrhoDelta**2; XA = (XC+1.)/2.; X = np.array([XA, XA, 2.*XA-1.]); #XB = XA, XC = 2*XA - 1
-        elif par["esquema"] == '4C':
-            XA = 1./np.sqrt(2.)/raizrhoDelta; X = np.array([XA, XA]); #XB = XA (1 tipo, ocorrência 2), XC = XD (outro sítio, ocorrência 2) = XA
+        eta = par["b"] * rho / 4.;
+        if par["g"] == "CPA":
+            gref = (1. - eta/2.) / (1. - eta)**3.;
+        elif par["g"] == "sCPA":
+            gref = 1. / (1. - 1.9*eta);
+        # Delta = gref * (np.exp(par["epsAB_R"]/T)-1.) * par["b_betaAB"];
+        Delta = gref * (np.exp(par["epsAB_R"]/T - np.log(par["b_betaAB"])) - par["b_betaAB"]);
+        rhoDelta = rho * Delta;
+        if rhoDelta < 1.e300:
+            if par["esquema"] == '1A':
+                XA = (-1.+np.sqrt(1+4*rhoDelta))/(2*rhoDelta); X = np.array([XA]);
+            elif par["esquema"] == '2B':
+                XA = (-1.+np.sqrt(1+4*rhoDelta))/(2*rhoDelta); X = np.array([XA, XA]); #XB = XA
+            elif par["esquema"] == '3B':
+                XA = (-1.+rhoDelta+np.sqrt((1+rhoDelta)**2+4*rhoDelta))/(4*rhoDelta); X = np.array([XA, 2.*XA-1.]); #XB = XA (1 tipo, ocorrência 2), XC = 2*XA - 1
+            elif par["esquema"] == '4C':
+                XA = (-1.+np.sqrt(1+8*rhoDelta))/(4*rhoDelta); X = np.array([XA, XA]); #XB = XA (1 tipo, ocorrência 2), XC = XD (outro sítio, ocorrência 2) = XA
+        else:
+            raizrhoDelta = np.sqrt(rho * par["b_betaAB"] * gref) * np.exp(par["epsAB_R"]/(2.*T));
+            if par["esquema"] == '1A':
+                XA = 1./raizrhoDelta; X = np.array([XA]);
+            elif par["esquema"] == '2B':
+                XA =1./raizrhoDelta; X = np.array([XA, XA]); #XB = XA
+            elif par["esquema"] == '3B':
+                XC = 3./2./raizrhoDelta**2; XA = (XC+1.)/2.; X = np.array([XA, XA, 2.*XA-1.]); #XB = XA, XC = 2*XA - 1
+            elif par["esquema"] == '4C':
+                XA = 1./np.sqrt(2.)/raizrhoDelta; X = np.array([XA, XA]); #XB = XA (1 tipo, ocorrência 2), XC = XD (outro sítio, ocorrência 2) = XA
     return X, eta, Delta, gref, rhoDelta
 
 def alfaT(T, par):
