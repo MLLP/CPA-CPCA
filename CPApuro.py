@@ -61,7 +61,7 @@ def iniciaparpuro(par):
 
 def Xassocpuro(rho,T,par):
     if par["esquema"] == 'nenhum':
-        XA = 1.
+        X = 1.; eta = 0., Delta = 0., gref = 0., rhoDelta = 0.
     else:
         eta = par["b"] * rho / 4.;
         if par["g"] == "CPA":
