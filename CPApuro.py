@@ -114,11 +114,14 @@ def Zpuro(rho, T, par):
     return Zcub + Zassoc
 
 def Bpuro(T, par):
-    if par["esquema"] != 'nenhum':
+    if par["esquema"] == 'nenhum':
+        Bassoc = 0.
+    elif par["esquema"] == '1A':
+        Delta_rho0 = (np.exp(par["epsAB_R"]/T) - 1.) * par["betaAB"];
+        Bassoc = -Delta_rho0 / 2.;
+    else:
         Delta_rho0 = (np.exp(par["MepsAB_R"]/T) - 1.) * par["MbetaAB"];
         Bassoc = -np.array(par["Sassoc"]) @ Delta_rho0 @ np.array(par["Sassoc"]) / 2.;
-    else:
-        Bassoc = 0.
 
     Bcub = par["b"] * (1. - par["a0_bR"] * alfaT(T, par) / T);
 
