@@ -112,8 +112,7 @@ def Zpuro(rho, T, par):
 
 def Bpuro(T, par):
     if par["esquema"] != 'nenhum':
-        # Delta_rho0 = (np.exp(par["MepsAB_R"]/T)-1.) * par["b_betaAB"];
-        Delta_rho0 = np.exp(par["epsAB_R"]/T - np.log(par["b_betaAB"])) - par["b_betaAB"];
+        Delta_rho0 = (np.exp(par["MepsAB_R"]/T) - 1.) * par["MbetaAB"];
         Bassoc = -np.array(par["Sassoc"]) @ Delta_rho0 @ np.array(par["Sassoc"]) / 2.;
     else:
         Bassoc = 0.
