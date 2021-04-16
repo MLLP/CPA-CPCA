@@ -74,15 +74,20 @@ def Xassocpuro(rho,T,par):
         elif par["g"] == "sCPA":
             gref = 1. / (1. - 1.9*eta);
         # Delta = gref * (np.exp(par["epsAB_R"]/T)-1.) * par["b_betaAB"];
-        Delta = gref * (np.exp(par["epsAB_R"]/T - np.log(par["b_betaAB"])) - par["b_betaAB"]);
+        Delta = gref * (np.exp(par["epsAB_R"]/T + np.log(par["b_betaAB"])) - par["b_betaAB"]);
         rhoDelta = rho * Delta;
-        if rhoDelta < 1.e300:
+        if rhoDelta < 1.e-15:
+            if par["esquema"] == '1A':
+                X = np.array([1.]);
+            else:
+                X = np.array([1., 1.]);
+        elif rhoDelta < 1.e300:
             if par["esquema"] == '1A':
                 XA = (-1.+np.sqrt(1+4*rhoDelta))/(2*rhoDelta); X = np.array([XA]);
             elif par["esquema"] == '2B':
                 XA = (-1.+np.sqrt(1+4*rhoDelta))/(2*rhoDelta); X = np.array([XA, XA]); #XB = XA
             elif par["esquema"] == '3B':
-                XA = (-1.+rhoDelta+np.sqrt((1+rhoDelta)**2+4*rhoDelta))/(4*rhoDelta); X = np.array([XA, 2.*XA-1.]); #XB = XA (1 tipo, ocorrência 2), XC = 2*XA - 1
+                XA = (-1.+rhoDelta+np.sqrt((1.+rhoDelta)**2.+4.*rhoDelta))/(4.*rhoDelta); X = np.array([XA, 2.*XA-1.]); #XB = XA (1 tipo, ocorrência 2), XC = 2*XA - 1
             elif par["esquema"] == '4C':
                 XA = (-1.+np.sqrt(1+8*rhoDelta))/(4*rhoDelta); X = np.array([XA, XA]); #XB = XA (1 tipo, ocorrência 2), XC = XD (outro sítio, ocorrência 2) = XA
         else:
@@ -179,7 +184,7 @@ def fobjPalphakTpuro(v, tipo, escala, par, Dadosexp):
         vi = v[i];
         if tipo == "3p": #3 parâmetros estimados: Tc, Pc e omega ou a0, b e c1
             par["b"], par["a0"], par["c1"] = vi * escala; par["Tc"] = 0.08664/0.42748/par["R"]*par["a0"]/par["b"];
-        elif tipo == "5p": #4 parâmetros estimados: a0, b, c1, epsAB, betaAB
+        elif tipo == "5p": #5 parâmetros estimados: a0, b, c1, epsAB, betaAB
             par["b"], par["a0"], par["c1"], par["epsAB"], lnbetaAB = vi * escala; par["betaAB"] = np.exp(lnbetaAB);
             par["Tc"] = 0.08664/0.42748/par["R"]*par["a0"]/par["b"];
         par = iniciaparpuro(par);
