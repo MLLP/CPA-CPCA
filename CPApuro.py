@@ -46,21 +46,21 @@ def iniciaparpuro(par):
 
     #ac, bc e a razão ac/(bc * R)
     par["a0_bR"] = par["a0"] / (par["b"] * par["R"]);
-    #bbetaAB, epsAB_R e mbAB
-    par["b_betaAB"] = par["b"] * par["betaAB"]; par["epsAB_R"] = par["epsAB"] / par["R"];
-
-    if par["esquema"] == "1A":
-        par["MepsAB"] = [par["epsAB"]]; par["MbetaAB"] = np.array([par["betaAB"]]);
-        par["MepsAB_R"] = np.array(par["MepsAB"])/par["R"]; par["Sassoc"] = np.array([1]);
-    elif par["esquema"] == "2B":
-        par["MepsAB"] = [[0, par["epsAB"]],[par["epsAB"], 0]]; par["MbetaAB"] = np.array([[0, par["betaAB"]],[par["betaAB"], 0]]);
-        par["MepsAB_R"] = np.array(par["MepsAB"])/par["R"]; par["Sassoc"] = np.array([1, 1]);
-    elif par["esquema"] == "3B":
-        par["MepsAB"] = [[0, par["epsAB"]],[par["epsAB"], 0]]; par["MbetaAB"] = np.array([[0, par["betaAB"]],[par["betaAB"], 0]]);
-        par["MepsAB_R"] = np.array(par["MepsAB"])/par["R"]; par["Sassoc"] = np.array([2, 1]);
-    elif par["esquema"] == "4C":
-        par["MepsAB"] = [[0, par["epsAB"]],[par["epsAB"], 0]]; par["MbetaAB"] = np.array([[0, par["betaAB"]],[par["betaAB"], 0]]);
-        par["MepsAB_R"] = np.array(par["MepsAB"])/par["R"]; par["Sassoc"] = np.array([2, 2]);
+    if par["esquema"] != "nenhum":
+        #bbetaAB, epsAB_R e mbAB
+        par["b_betaAB"] = par["b"] * par["betaAB"]; par["epsAB_R"] = par["epsAB"] / par["R"];
+        if par["esquema"] == "1A":
+            par["MepsAB"] = [par["epsAB"]]; par["MbetaAB"] = np.array([par["betaAB"]]);
+            par["MepsAB_R"] = np.array(par["MepsAB"])/par["R"]; par["Sassoc"] = np.array([1]);
+        elif par["esquema"] == "2B":
+            par["MepsAB"] = [[0, par["epsAB"]],[par["epsAB"], 0]]; par["MbetaAB"] = np.array([[0, par["betaAB"]],[par["betaAB"], 0]]);
+            par["MepsAB_R"] = np.array(par["MepsAB"])/par["R"]; par["Sassoc"] = np.array([1, 1]);
+        elif par["esquema"] == "3B":
+            par["MepsAB"] = [[0, par["epsAB"]],[par["epsAB"], 0]]; par["MbetaAB"] = np.array([[0, par["betaAB"]],[par["betaAB"], 0]]);
+            par["MepsAB_R"] = np.array(par["MepsAB"])/par["R"]; par["Sassoc"] = np.array([2, 1]);
+        elif par["esquema"] == "4C":
+            par["MepsAB"] = [[0, par["epsAB"]],[par["epsAB"], 0]]; par["MbetaAB"] = np.array([[0, par["betaAB"]],[par["betaAB"], 0]]);
+            par["MepsAB_R"] = np.array(par["MepsAB"])/par["R"]; par["Sassoc"] = np.array([2, 2]);
 
     return par
 
