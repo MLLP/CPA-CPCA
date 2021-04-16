@@ -1,7 +1,8 @@
 #CPA e CPCA
 import numpy as np; #from scipy import optimize
 
-def iniciaparpuro(par):
+def inicia_const_banco():
+    par = {}; #cria o dicionário
     par["eps"] = 1.; par["sig"] = 0.; #CPA original, SRK + associativo, OUTROS VALORES PODEM SER ESCOLHIDOS
     par["es"] = par["eps"] * par["sig"]; par["ems"] = par["eps"] + par["sig"]; par["ems_1"] = par["ems"] - 1;
     par["es_e_s"] = par["es"] - par["ems"]; par["inv_s_e"] = 1 / (par["sig"] - par["eps"]); par["es2"] = par["es"]**2;
@@ -9,35 +10,39 @@ def iniciaparpuro(par):
     par["R"] = 0.08314462; #R em bar L / K / mol
     par["tolP"] = 1e-5; #tolerância para convergência em pressão (P), sendo o valor máximo para a diferença relativa percentual entre dois valores de P
     
+    #Dados:          b         a0        c1    epsAB    betaAB     Tc       M   esquema
+    #em           L/mol   bar(L/mol)^2    -   barL/mol    -        K      g/mol   -
+    par["Mdata"] = {
+    'água 3B 1': [0.014969, 3.005960, 0.35928, 207.97, 21.3e-3,  647.29, 18.015, '3B'],
+    'metanol 3B':[0.0334,   4.5897,   1.0068,  160.70, 34.4e-3,  512.64, 32.042, '3B'],
+    'n-pentano': [0.091010, 17.900,   0.81352, 0,      0,        479.44, 72.151, 'nenhum'],
+    'etanol 3B': [0.0500,    8.5755,  1.0564,  150.00, 17.3e-3,  513.92, 46.069, '3B'],
+    'água 4C':   [0.014,     1.06,    0.55,    173.3,  68.56e-3, 647.29, 18.015, '4C'],
+    'etanol 2B': [0.048,     7.49,    0.72,    231.2,  9.42e-3,  513.92, 46.069, '2B'],
+    'metanol 2B':[0.0309,    4.0531,  0.4310,  245.91, 16.1e-3,  512.64, 32.042, '2B'],
+    'H2S 4C':    [0.029320,  3.1995,  0.82805, 14.64,  0.4862,   373.3,  34.08,  '4C'],
+    'H2S 3B':    [0.028950,  3.2991,  0.74067, 37.82,  0.2329,   373.3,  34.08,  '3B'],
+    'HAc':       [0.0468,    9.1196,  0.4644,  403.23, 4.5e-3,   591.95, 60.052, '1A']};
+    #Referência para os parâmetros
+    #Ten Years with the CPA part 1: Ind. Eng. Chem. Res., Vol. 45, No. 14, 2006, 4855-4868
+    par["refbanco"] = {
+    'água 3B 1': 'Ten Years with the CPA part 1 - Table 9 and A1',
+    'metanol 3B':'Ten Years with the CPA part 1 - Table 6 and A1',
+    'n-pentano': 'Ten Years with the CPA part 1 - Table A2',
+    'etanol 3B': 'Ten Years with the CPA part 1 - Table 6 and A1',
+    'água 4C':   'Braz. J. Chem. Eng., Vol. 35, No. 02, 2018, 363-372 - Table 1',
+    'etanol 2B': 'Braz. J. Chem. Eng., Vol. 35, No. 02, 2018, 363-372 - Table 1',
+    'metanol 2B':'Ten Years with the CPA part 1 - Table 4',
+    'H2S 4C':    'Ind. Eng. Chem. Res. 2006, 45, 7688-7699 - Table 1',
+    'H2S 3B':    'Ind. Eng. Chem. Res. 2006, 45, 7688-7699 - Table 1',
+    'HAc':       'Ten Years with the CPA part 1 - Table 4 and A1'};
+
+    return par
+
+def iniciaparpuro(par): 
     if par["Subs do Banco"] == True:
-        #Dados:          b         a0        c1    epsAB    betaAB     Tc       M   esquema
-        #em           L/mol   bar(L/mol)^2    -   barL/mol    -        K      g/mol   -
-        Mdata = {
-        'água 3B 1': [0.014969, 3.005960, 0.35928, 207.97, 21.3e-3,  647.29, 18.015, '3B'],
-        'metanol 3B':[0.0334,   4.5897,   1.0068,  160.70, 34.4e-3,  512.64, 32.042, '3B'],
-        'n-pentano': [0.091010, 17.900,   0.81352, 0,      0,        479.44, 72.151, 'nenhum'],
-        'etanol 3B': [0.0500,    8.5755,  1.0564,  150.00, 17.3e-3,  513.92, 46.069, '3B'],
-        'água 4C':   [0.014,     1.06,    0.55,    173.3,  68.56e-3, 647.29, 18.015, '4C'],
-        'etanol 2B': [0.048,     7.49,    0.72,    231.2,  9.42e-3,  513.92, 46.069, '2B'],
-        'metanol 2B':[0.0309,    4.0531,  0.4310,  245.91, 16.1e-3,  512.64, 32.042, '2B'],
-        'H2S 4C':    [0.029320,  3.1995,  0.82805, 14.64,  0.4862,   373.3,  34.08,  '4C'],
-        'H2S 3B':    [0.028950,  3.2991,  0.74067, 37.82,  0.2329,   373.3,  34.08,  '3B'],
-        'HAc':       [0.0468,    9.1196,  0.4644,  403.23, 4.5e-3,   591.95, 60.052, '1A']};
-        #Referência para os parâmetros
-        #Ten Years with the CPA part 1: Ind. Eng. Chem. Res., Vol. 45, No. 14, 2006, 4855-4868
-        refpar = {
-        'água 3B 1': 'Ten Years with the CPA part 1 - Table 9 and A1',
-        'metanol 3B':'Ten Years with the CPA part 1 - Table 6 and A1',
-        'n-pentano': 'Ten Years with the CPA part 1 - Table A2',
-        'etanol 3B': 'Ten Years with the CPA part 1 - Table 6 and A1',
-        'água 4C':   'Braz. J. Chem. Eng., Vol. 35, No. 02, 2018, 363-372 - Table 1',
-        'etanol 2B': 'Braz. J. Chem. Eng., Vol. 35, No. 02, 2018, 363-372 - Table 1',
-        'metanol 2B':'Ten Years with the CPA part 1 - Table 4',
-        'H2S 4C':    'Ind. Eng. Chem. Res. 2006, 45, 7688-7699 - Table 1',
-        'H2S 3B':    'Ind. Eng. Chem. Res. 2006, 45, 7688-7699 - Table 1',
-        'HAc':       'Ten Years with the CPA part 1 - Table 4 and A1'};
-        par["b"],par["a0"],par["c1"],par["epsAB"],par["betaAB"],par["Tc"],par["MM"],par["esquema"]= Mdata[par["substância"]];
-        par["refpar"] = refpar[par["substância"]];
+        par["b"],par["a0"],par["c1"],par["epsAB"],par["betaAB"],par["Tc"],par["MM"],par["esquema"]= par["Mdata"][par["substância"]];
+        par["refpar"] = par["refbanco"][par["substância"]];
 
     #ac, bc e a razão ac/(bc * R)
     par["a0_bR"] = par["a0"] / (par["b"] * par["R"]);
@@ -81,7 +86,8 @@ def Xassocpuro(rho,T,par):
             elif par["esquema"] == '4C':
                 XA = (-1.+np.sqrt(1+8*rhoDelta))/(4*rhoDelta); X = np.array([XA, XA]); #XB = XA (1 tipo, ocorrência 2), XC = XD (outro sítio, ocorrência 2) = XA
         else:
-            raizrhoDelta = np.sqrt(rho * par["b_betaAB"] * gref) * np.exp(par["epsAB_R"]/(2.*T));
+            # raizrhoDelta = np.sqrt(rho * par["b_betaAB"] * gref) * np.exp(par["epsAB_R"]/(2.*T));
+            raizrhoDelta = np.sqrt(rho * gref) * np.exp( ( par["epsAB_R"]/T + np.log(par["b_betaAB"]) )/2. );
             if par["esquema"] == '1A':
                 XA = 1./raizrhoDelta; X = np.array([XA]);
             elif par["esquema"] == '2B':
@@ -117,10 +123,12 @@ def Bpuro(T, par):
     if par["esquema"] == 'nenhum':
         Bassoc = 0.
     elif par["esquema"] == '1A':
-        Delta_rho0 = (np.exp(par["epsAB_R"]/T) - 1.) * par["betaAB"];
+        # Delta_rho0 = (np.exp(par["epsAB_R"]/T) - 1.) * par["betaAB"];
+        Delta_rho0 = np.exp( par["epsAB_R"]/T + np.log(par["betaAB"]) ) - par["betaAB"];
         Bassoc = -Delta_rho0 / 2.;
     else:
-        Delta_rho0 = (np.exp(par["MepsAB_R"]/T) - 1.) * par["MbetaAB"];
+        # Delta_rho0 = (np.exp(par["MepsAB_R"]/T) - 1.) * par["MbetaAB"];
+        Delta_rho0 = np.exp( par["MepsAB_R"]/T + np.log(par["MbetaAB"]) ) - par["MbetaAB"];
         Bassoc = -np.array(par["Sassoc"]) @ Delta_rho0 @ np.array(par["Sassoc"]) / 2.;
 
     Bcub = par["b"] * (1. - par["a0_bR"] * alfaT(T, par) / T);
@@ -173,7 +181,7 @@ def fobjPalphakTpuro(v, tipo, escala, par, Dadosexp):
             par["b"], par["a0"], par["c1"] = vi * escala; par["Tc"] = 0.08664/0.42748/par["R"]*par["a0"]/par["b"];
         elif tipo == "5p": #4 parâmetros estimados: a0, b, c1, epsAB, betaAB
             par["b"], par["a0"], par["c1"], par["epsAB"], lnbetaAB = vi * escala; par["betaAB"] = np.exp(lnbetaAB);
-
+            par["Tc"] = 0.08664/0.42748/par["R"]*par["a0"]/par["b"];
         par = iniciaparpuro(par);
 
         Pcalc = []; alphacalc = []; kTcalc = [];
