@@ -341,6 +341,44 @@ def fobjPalphakTpuro(v, tipo, escala, par, Dadosexp):
     vfobj, Pcalc, alphacalc, kTcalc = fobjPalphakTpuro_(v, tipo, escala, par, Dadosexp)
     return np.squeeze(vfobj)
 
+def fobjrho_u_puro_(v, tipo, escala, par, Dadosexp):
+    Texprho, Pexprho, rhoexp, Texpu, Pexpu, uexp, Cpexp, dprhoexp, dpuexp = Dadosexp; par["Subs do Banco"] = False;
+    if np.ndim(v) == 1:
+        nparam = 1; v = [v];
+    else:
+        nparam = np.shape(v)[0];
+    vfobj = [];
+    for i in range(nparam):
+        vi = v[i];
+        if tipo == "3p": #3 parâmetros estimados: Tc, Pc e omega ou a0, b e c1
+            par["b"], par["a0"], par["c1"] = abs(np.array(vi)) * escala; par["esquema"]="nenhum";
+            par["c1"] = vi[2] * escala[2];
+            par["Tc"] = par["omg_psi_R"]*par["a0"]/par["b"];
+        elif tipo == "5p": #5 parâmetros estimados: a0, b, c1, epsAB, betaAB
+            par["b"], par["a0"], par["c1"], par["epsAB"] = abs(np.array(vi[0:-1])) * escala[0:-1];
+            par["c1"] = vi[2] * escala[2];
+            auxbetaAB = vi[-1] * escala[-1]; par["betaAB"] = par["betaABmax"] / (1. + np.exp(auxbetaAB));
+            par["Tc"] = par["omg_psi_R"]*par["a0"]/par["b"];
+        par = iniciaparpuro(par);
+
+        rhocalc = [];
+        for j in range(len(Texprho)):
+            rho = raizrho(Texprho[j], Pexprho[j], "líquido", par);
+            if type(rho) == str:
+                rhocalc.append(1e10);
+            else:
+                rhocalc.append(rho);
+        ucalc = [];
+        for j in range(len(Texpu)):
+            rho, u = rhoupuro(Texpu[j], Pexpu[j], Cpexp[j], "líquido", par);
+            if type(u) == str:
+                ucalc.append(1e10);
+            else:
+                ucalc.append(u);
+        fobj = np.sum(((rhocalc-rhoexp)/dprhoexp)**2. + ((ucalc-uexp)/dpuexp)**2.);
+        vfobj.append(fobj);
+    return vfobj, rhocalc, ucalc
+
 def fobjrhoupuro_(v, tipo, escala, par, Dadosexp):
     Texp, Pexp, rhoexp, uexp, Cpexp, dprhoexp, dpuexp = Dadosexp; par["Subs do Banco"] = False;
     if np.ndim(v) == 1:
@@ -372,7 +410,10 @@ def fobjrhoupuro_(v, tipo, escala, par, Dadosexp):
         vfobj.append(fobj);
     return vfobj, rhocalc, ucalc
 
+def fobjrho_u_puro(v, tipo, escala, par, Dadosexp):
+    vfobj, rhocalc, ucalc = fobjrho_u_puro_(v, tipo, escala, par, Dadosexp)
+    return np.squeeze(vfobj)
+
 def fobjrhoupuro(v, tipo, escala, par, Dadosexp):
     vfobj, rhocalc, ucalc = fobjrhoupuro_(v, tipo, escala, par, Dadosexp)
     return np.squeeze(vfobj)
-
